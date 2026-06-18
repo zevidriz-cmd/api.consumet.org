@@ -1,6 +1,6 @@
 {
     "name": "api.consumet.org",
-    "version": "1.0.0",
+    "version": "1.0.0",    
     "main": "src/main.ts",
     "scripts": {
         "start": "ts-node src/main.ts",
@@ -23,7 +23,7 @@
     },
     "homepage": "https://github.com/consumet/consumet.ts#readme",
     "dependencies": {
-        "@consumet/extensions": "git+https://github.com/consumet/consumet.ts.git",
+            "@consumet/extensions": "^1.8.8",
         "@fastify/cors": "^8.5.0",
         "@types/node": "^18.11.17",
         "@types/ws": "^8.5.3",
