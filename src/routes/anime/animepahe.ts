@@ -8,6 +8,13 @@ import { Redis } from 'ioredis';
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   const animepahe = new ANIME.AnimePahe();
 
+  // Override baseUrl because animepahe.si is dead/unresolvable
+  if (process.env.ANIMEPAHE_URL) {
+    (animepahe as any).baseUrl = process.env.ANIMEPAHE_URL;
+  } else {
+    (animepahe as any).baseUrl = 'https://animepahe.com';
+  }
+
   fastify.get('/', (_, rp) => {
     rp.status(200).send({
       intro: `Welcome to the animepahe provider: check out the provider's website @ ${animepahe.toString.baseUrl}`,
@@ -30,9 +37,10 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         : await animepahe.search(query);
 
       reply.status(200).send(res);
-    } catch (err) {
+    } catch (err: any) {
+      fastify.log.error(err);
       reply.status(500).send({
-        message: 'Something went wrong. Contact developer for help.',
+        message: err.message || 'Something went wrong. Contact developer for help.',
       });
     }
   });
@@ -52,9 +60,10 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
           : await animepahe.fetchRecentEpisodes(page);
 
         reply.status(200).send(res);
-      } catch (error) {
+      } catch (err: any) {
+        fastify.log.error(err);
         reply.status(500).send({
-          message: 'Something went wrong. Contact developer for help.',
+          message: err.message || 'Something went wrong. Contact developer for help.',
         });
       }
     },
@@ -75,10 +84,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         : await animepahe.fetchAnimeInfo(id, episodePage);
 
       reply.status(200).send(res);
-    } catch (err) {
-      reply
-        .status(500)
-        .send({ message: 'Something went wrong. Contact developer for help.' });
+    } catch (err: any) {
+      fastify.log.error(err);
+      reply.status(500).send({
+        message: err.message || 'Something went wrong. Contact developer for help.',
+      });
     }
   });
 
@@ -99,11 +109,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         : await animepahe.fetchEpisodeSources(episodeId);
 
       reply.status(200).send(res);
-    } catch (err) {
-      console.log(err);
-      reply
-        .status(500)
-        .send({ message: 'Something went wrong. Contact developer for help.' });
+    } catch (err: any) {
+      fastify.log.error(err);
+      reply.status(500).send({
+        message: err.message || 'Something went wrong. Contact developer for help.',
+      });
     }
   });
 };
