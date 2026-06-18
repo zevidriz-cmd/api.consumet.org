@@ -6,7 +6,20 @@ import { redis, REDIS_TTL } from '../../main';
 import { Redis } from 'ioredis';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
-  const animepahe = new ANIME.AnimePahe();
+  let proxyConfig: any = undefined;
+  if (process.env.PROXY_URL) {
+    proxyConfig = {
+      url: process.env.PROXY_URL.includes(',') ? process.env.PROXY_URL.split(',') : process.env.PROXY_URL,
+    };
+    if (process.env.PROXY_KEY) {
+      proxyConfig.key = process.env.PROXY_KEY;
+    }
+    if (process.env.PROXY_ROTATE_INTERVAL) {
+      proxyConfig.rotateInterval = Number(process.env.PROXY_ROTATE_INTERVAL);
+    }
+  }
+
+  const animepahe = new ANIME.AnimePahe(proxyConfig);
 
   // Override baseUrl because animepahe.si is dead/unresolvable
   if (process.env.ANIMEPAHE_URL) {
